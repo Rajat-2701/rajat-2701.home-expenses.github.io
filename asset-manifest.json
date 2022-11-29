@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Rajat-2701/rajat-2701.home-expenses.github.io/static/css/main.4cbb7f6f.css",
+    "main.js": "/Rajat-2701/rajat-2701.home-expenses.github.io/static/js/main.a5dfe931.js",
+    "index.html": "/Rajat-2701/rajat-2701.home-expenses.github.io/index.html",
+    "main.4cbb7f6f.css.map": "/Rajat-2701/rajat-2701.home-expenses.github.io/static/css/main.4cbb7f6f.css.map",
+    "main.a5dfe931.js.map": "/Rajat-2701/rajat-2701.home-expenses.github.io/static/js/main.a5dfe931.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.4cbb7f6f.css",
+    "static/js/main.a5dfe931.js"
+  ]
+}
