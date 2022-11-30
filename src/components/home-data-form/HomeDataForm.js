@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./HomeDataForm.css";
-import { PDFExport, savePDF } from "@progress/kendo-react-pdf";
+import { PDFExport } from "@progress/kendo-react-pdf";
+import ReactPaginate from "react-paginate";
 const getDataFromLS = () => {
   const myData = localStorage.getItem("listing");
   if (myData) {
@@ -14,7 +15,31 @@ const HomeDataForm = () => {
   const [firstName, setFirstName] = useState("");
   const [amount, setAmount] = useState("");
   const [data, setData] = useState(getDataFromLS());
-  const handleSubmit = (e) => {
+  const [toggleEdit, setToggleEdit] = useState(true);
+
+  // showing items per page :
+  const itemsPerPage = 10;
+  // state to know starting item value:
+  const [itemsOffset, setItemsOffset] = useState(0);
+
+  // it is used to find out the end value per page to show:
+  const endOffset = itemsOffset + itemsPerPage;
+  console.log(`Loading items from ${itemsOffset} to ${endOffset}`);
+  const currentItems = data?.slice(itemsOffset, endOffset);
+
+  // pages according to the items:
+  const pageCount = Math.ceil(data.length / itemsPerPage);
+
+  //   previous and next arrow :
+  const previousArrow = <i className="fas fa-arrow-left mr-10" id="prev"></i>;
+  const nextArrow = <i className="fas fa-arrow-right ml-10" id="next"></i>;
+  // handle new page
+  const handlePageClick = (e) => {
+    const newOffset = (e.selected * itemsPerPage) % data.length;
+    setItemsOffset(newOffset);
+  };
+
+  const handleSubmit = (e, index) => {
     e.preventDefault();
     const lists = {
       firstName,
@@ -33,13 +58,6 @@ const HomeDataForm = () => {
     const deleteEntry = data.filter((item, number) => number !== index);
     setData(deleteEntry);
     console.log("data", data);
-  };
-  // edit particular entry
-  const handleEdit = (index) => {
-    const editEntry = data?.find((elem, number) => {
-      return index === number;
-    });
-    console.log("edit", editEntry);
   };
   // pdf with method
   const exportWithComponent = () => {
@@ -74,12 +92,21 @@ const HomeDataForm = () => {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
-        <div
-          onClick={handleSubmit}
-          className="bg-black text-white rounded-md p-3 text-center w-full mt-2 cursor-pointer hover:bg-white hover:text-black transition-all duration-700 ease-in-out"
-        >
-          Submit
-        </div>
+
+        {toggleEdit ? (
+          <div
+            onClick={handleSubmit}
+            className="bg-black text-white rounded-md p-3 text-center w-full mt-2 cursor-pointer hover:bg-white hover:text-black transition-all duration-700 ease-in-out"
+          >
+            Submit
+          </div>
+        ) : (
+          <div
+            className="bg-black text-white rounded-md p-3 text-center w-full mt-2 cursor-pointer hover:bg-white hover:text-black transition-all duration-700 ease-in-out"
+          >
+            Modify
+          </div>
+        )}
       </form>
       <div
         className="flex justify-center items-center p-2 bg-[#2f4ad0] mt-2 w-32 rounded-md text-white float-right shadow-md tracking-normal hover:select-none hover:w-36 cursor-pointer transition-all duration-500 ease-in-out"
@@ -87,7 +114,7 @@ const HomeDataForm = () => {
       >
         Save All <i className="fas fa-download ml-2"></i>
       </div>
-      {data && (
+      {currentItems && (
         <PDFExport ref={pdfExportComponent} paperSize='A3'>
           <table className="table table-bordered table-striped mt-20 text-center">
             <thead className="thead-dark">
@@ -99,8 +126,8 @@ const HomeDataForm = () => {
               </tr>
             </thead>
             <tbody>
-              {data &&
-                data?.map((item, index) => {
+              {currentItems &&
+                currentItems?.map((item, index) => {
                   return (
                     <tr key={index}>
                       <td>{`${new Date().getDate()} / ${
@@ -109,7 +136,7 @@ const HomeDataForm = () => {
                       <td>{item?.firstName}</td>
                       <td>{item?.amount}</td>
                       <td>
-                        <i onClick={() => handleEdit(index)} className="fas fa-edit mr-4 cursor-pointer"></i>
+                        <i className="fas fa-edit mr-4 cursor-pointer"></i>
                         <i onClick={() => handleDelete(index)} className="fas fa-trash cursor-pointer"></i>
                       </td>
                     </tr>
@@ -119,6 +146,18 @@ const HomeDataForm = () => {
           </table>
         </PDFExport>
       )}
+      <ReactPaginate
+        className="w-full flex justify-center items-center text-base p-3"
+        breakLabel="..."
+        activeClassName="bg-indigo-500 rounded-full text-white"
+        nextLabel={nextArrow}
+        onPageChange={handlePageClick}
+        pageRangeDisplayed={5}
+        pageCount={pageCount}
+        pageClassName="pl-3 pr-3 ml-2 mr-2 transition-all duration-500 cursor-pointer ease-in-out hover:bg-indigo-500 pt-1 pb-1 hover:text-white hover:rounded-full"
+        previousLabel={previousArrow}
+        renderOnZeroPageCount={null}
+      />
     </div>
   );
 };
